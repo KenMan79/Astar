@@ -304,8 +304,9 @@ impl pallet_block_reward::Config for Runtime {
     type WeightInfo = pallet_block_reward::weights::SubstrateWeight<Runtime>;
 }
 
+const BLOCKS_PER_ERA: BlockNumber = 60;
 parameter_types! {
-    pub const BlockPerEra: BlockNumber = 60;
+    pub const BlockPerEra: BlockNumber = BLOCKS_PER_ERA;
     pub const RegisterDeposit: Balance = 100 * AST;
     pub const MaxNumberOfStakersPerContract: u32 = 512;
     pub const MinimumStakingAmount: Balance = 10 * AST;
@@ -313,6 +314,8 @@ parameter_types! {
     pub const MaxUnlockingChunks: u32 = 2;
     pub const UnbondingPeriod: u32 = 2;
     pub const MaxEraStakeValues: u32 = 5;
+    pub const NominationTransferCooldown: BlockNumber = BLOCKS_PER_ERA * 2;
+    pub const NominationTransferCharges: u32 = 2;
 }
 
 impl pallet_dapps_staking::Config for Runtime {
@@ -329,6 +332,8 @@ impl pallet_dapps_staking::Config for Runtime {
     type UnbondingPeriod = UnbondingPeriod;
     type MinimumRemainingAmount = MinimumRemainingAmount;
     type MaxEraStakeValues = MaxEraStakeValues;
+    type NominationTransferCooldown = NominationTransferCooldown;
+    type NominationTransferCharges = NominationTransferCharges;
 }
 
 /// Multi-VM pointer to smart contract instance.
