@@ -7,9 +7,7 @@
 use codec::{Decode, Encode};
 use frame_support::{
     construct_runtime, parameter_types,
-    traits::{
-        Contains, Currency, FindAuthor, Get, Imbalance, Nothing, OnRuntimeUpgrade, OnUnbalanced,
-    },
+    traits::{Contains, Currency, FindAuthor, Get, Imbalance, Nothing, OnUnbalanced},
     weights::{
         constants::{BlockExecutionWeight, ExtrinsicBaseWeight, WEIGHT_PER_SECOND},
         DispatchClass, Weight, WeightToFeeCoefficient, WeightToFeeCoefficients,
@@ -299,8 +297,9 @@ impl pallet_custom_signatures::Config for Runtime {
     type UnsignedPriority = EcdsaUnsignedPriority;
 }
 
+const BLOCKS_PER_ERA: BlockNumber = 4 * HOURS;
 parameter_types! {
-    pub const BlockPerEra: BlockNumber = 4 * HOURS;
+    pub const BlockPerEra: BlockNumber = BLOCKS_PER_ERA;
     pub const RegisterDeposit: Balance = 100 * SDN;
     pub const MaxNumberOfStakersPerContract: u32 = 2048;
     pub const MinimumStakingAmount: Balance = 5 * SDN;
@@ -308,6 +307,8 @@ parameter_types! {
     pub const MaxEraStakeValues: u32 = 5;
     pub const MaxUnlockingChunks: u32 = 32;
     pub const UnbondingPeriod: u32 = 2;
+    pub const NominationTransferCooldown: BlockNumber = BLOCKS_PER_ERA * 3;
+    pub const NominationTransferCharges: u32 = 2;
 }
 
 impl pallet_dapps_staking::Config for Runtime {
@@ -324,6 +325,8 @@ impl pallet_dapps_staking::Config for Runtime {
     type UnbondingPeriod = UnbondingPeriod;
     type MinimumRemainingAmount = MinimumRemainingAmount;
     type MaxEraStakeValues = MaxEraStakeValues;
+    type NominationTransferCooldown = NominationTransferCooldown;
+    type NominationTransferCharges = NominationTransferCharges;
 }
 
 /// Multi-VM pointer to smart contract instance.
@@ -864,41 +867,7 @@ pub type Executive = frame_executive::Executive<
     frame_system::ChainContext<Runtime>,
     Runtime,
     AllPalletsWithSystem,
-    (InitRewardConfigSettings,),
 >;
-
-// Migration for fixing era length in dapps staking.
-pub struct InitRewardConfigSettings;
-
-impl OnRuntimeUpgrade for InitRewardConfigSettings {
-    fn on_runtime_upgrade() -> frame_support::weights::Weight {
-        // TODO: discuss these params on sync & with community
-        let mut reward_config = pallet_block_reward::RewardDistributionConfig {
-            base_treasury_percent: Perbill::from_percent(10),
-            base_staker_percent: Perbill::from_percent(20),
-            dapps_percent: Perbill::from_percent(15),
-            collators_percent: Perbill::from_percent(10),
-            adjustable_percent: Perbill::from_percent(45),
-            ideal_dapps_staking_tvl: Perbill::from_percent(40),
-        };
-        // This HAS to be tested prior to update - we need to ensure that config is consistent
-        #[cfg(feature = "try-runtime")]
-        assert!(reward_config.is_consistent());
-
-        // This should never execute but we need to have code in place that ensures config is consistent
-        if !reward_config.is_consistent() {
-            reward_config = Default::default();
-        }
-        pallet_block_reward::RewardDistributionConfigStorage::<Runtime>::put(reward_config);
-
-        // Do some storage cleanup for dapps-staking so we can remove these DB entries in the future
-        pallet_dapps_staking::MigrationStateV2::<Runtime>::kill();
-        pallet_dapps_staking::MigrationStateV3::<Runtime>::kill();
-        pallet_dapps_staking::MigrationUndergoingUnbonding::<Runtime>::kill();
-
-        <Runtime as frame_system::pallet::Config>::DbWeight::get().writes(4)
-    }
-}
 
 impl fp_self_contained::SelfContainedCall for Call {
     type SignedInfo = H160;

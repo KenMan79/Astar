@@ -112,19 +112,45 @@ impl<T: frame_system::Config> pallet_dapps_staking::WeightInfo for WeightInfo<T>
 	// Storage: Balances Locks (r:1 w:1)
 	// Storage: DappsStaking GeneralEraInfo (r:1 w:1)
 	fn withdraw_unbonded() -> Weight {
-		(114_252_000 as Weight)
+		(72_000_000 as Weight)
 			.saturating_add(T::DbWeight::get().reads(5 as Weight))
 			.saturating_add(T::DbWeight::get().writes(3 as Weight))
 	}
 	// Storage: DappsStaking PalletDisabled (r:1 w:0)
-	// Storage: DappsStaking StakersInfo (r:1 w:1)
+	// Storage: DappsStaking GeneralStakerInfo (r:1 w:1)
+	// Storage: DappsStaking RegisteredDapps (r:1 w:0)
+	// Storage: DappsStaking CurrentEra (r:1 w:0)
+	// Storage: DappsStaking ContractEraStake (r:1 w:1)
+	// Storage: DappsStaking GeneralEraInfo (r:2 w:1)
+	// Storage: DappsStaking Ledger (r:1 w:1)
+	// Storage: Balances Locks (r:1 w:1)
+	// Storage: System Account (r:1 w:1)
+	fn claim_staker_with_restake() -> Weight {
+		(91_000_000 as Weight)
+			.saturating_add(T::DbWeight::get().reads(10 as Weight))
+			.saturating_add(T::DbWeight::get().writes(6 as Weight))
+	}
+	// Storage: DappsStaking PalletDisabled (r:1 w:0)
+	// Storage: DappsStaking GeneralStakerInfo (r:1 w:1)
 	// Storage: DappsStaking RegisteredDapps (r:1 w:0)
 	// Storage: DappsStaking CurrentEra (r:1 w:0)
 	// Storage: DappsStaking ContractEraStake (r:1 w:0)
 	// Storage: DappsStaking GeneralEraInfo (r:1 w:0)
-	fn claim_staker() -> Weight {
-		(36_748_000 as Weight)
-			.saturating_add(T::DbWeight::get().reads(6 as Weight))
+	// Storage: DappsStaking Ledger (r:1 w:0)
+	fn claim_staker_without_restake() -> Weight {
+		(56_000_000 as Weight)
+			.saturating_add(T::DbWeight::get().reads(7 as Weight))
+			.saturating_add(T::DbWeight::get().writes(1 as Weight))
+	}
+	fn nomination_transfer() -> Weight {
+		// TODO: measure and add values here
+		0
+	}
+// Storage: DappsStaking PalletDisabled (r:1 w:0)
+	// Storage: DappsStaking Ledger (r:1 w:1)
+	fn set_reward_destination() -> Weight {
+		(24_000_000 as Weight)
+			.saturating_add(T::DbWeight::get().reads(2 as Weight))
 			.saturating_add(T::DbWeight::get().writes(1 as Weight))
 	}
 	// Storage: DappsStaking PalletDisabled (r:1 w:0)

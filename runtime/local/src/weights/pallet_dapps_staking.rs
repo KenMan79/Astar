@@ -130,10 +130,6 @@ impl<T: frame_system::Config> pallet_dapps_staking::WeightInfo for WeightInfo<T>
 			.saturating_add(T::DbWeight::get().reads(10 as Weight))
 			.saturating_add(T::DbWeight::get().writes(6 as Weight))
 	}
-	fn nomination_transfer() -> Weight {
-		// TODO: measure and add values here
-		0
-	}
 	// Storage: DappsStaking PalletDisabled (r:1 w:0)
 	// Storage: DappsStaking GeneralStakerInfo (r:1 w:1)
 	// Storage: DappsStaking RegisteredDapps (r:1 w:0)
@@ -145,6 +141,10 @@ impl<T: frame_system::Config> pallet_dapps_staking::WeightInfo for WeightInfo<T>
 		(56_000_000 as Weight)
 			.saturating_add(T::DbWeight::get().reads(7 as Weight))
 			.saturating_add(T::DbWeight::get().writes(1 as Weight))
+	}
+	fn nomination_transfer() -> Weight {
+		// TODO: measure and add values here
+		0
 	}
 	// Storage: DappsStaking PalletDisabled (r:1 w:0)
 	// Storage: DappsStaking RegisteredDapps (r:1 w:0)
